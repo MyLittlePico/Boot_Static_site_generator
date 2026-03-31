@@ -28,7 +28,7 @@ def copy_items (src_dir, dest_dir):
             copy_items (item_path, dest_path)
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath ):
     print (f"Generating page from {from_path} to {dest_path} using {template_path}")
     markdown = ""
     template = ""
@@ -43,6 +43,8 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(markdown)
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", html_text)
+    template = template.replace("href=\"/", f"href=\"{basepath}")
+    template = template.replace("src=\"/", f"src=\"{basepath}")
 
     write_text_to_dir(template,dest_path)
 
@@ -52,14 +54,14 @@ def write_text_to_dir(text, dest_path):
     with open(dest_path, "w") as file:
         file.write(text)
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath ):
     items = os.listdir(dir_path_content)
     for item in items:
         item_path = os.path.join(dir_path_content,item)
         if os.path.isdir(item_path):
             new_dest_path = os.path.join(dest_dir_path, item)
-            generate_pages_recursive(item_path, template_path, new_dest_path)
+            generate_pages_recursive(item_path, template_path, new_dest_path, basepath )
         elif item.endswith(".md"):
             html_item = item.replace(".md",".html")
             new_dest_path = os.path.join(dest_dir_path, html_item)
-            generate_page(item_path, template_path, new_dest_path)
+            generate_page(item_path, template_path, new_dest_path, basepath )
